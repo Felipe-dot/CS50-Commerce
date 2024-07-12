@@ -1,0 +1,16 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2 class="text-center mb-4">Categories</h2>
+
+    {% comment %} href="{% url 'listing_detail' listing.id %}">{{ listing.title }} {% endcomment %}
+    <div class="container">
+        <div class="col">
+            <ul class="list-unstyled">
+                {% for category in categories %}
+                    <li style="cursor:pointer;"><a class="card text-center mb-4 p-2">{{category.name}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

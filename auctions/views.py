@@ -1,15 +1,29 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-from .models import User
+from .models import User, AuctionListing, Category
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    listings = AuctionListing.objects.all()
+    return render(request, "auctions/index.html", {
+        "listings": listings
+    })
 
+def listing_detail(request, listing_id):
+    listing = get_object_or_404(AuctionListing, pk=listing_id)
+    return render(request, "auctions/listing_detail.html", {
+        "listing": listing
+    })
+
+def categories(request):
+    categories = Category.objects.all()
+    return render(request, "auctions/categories.html", {
+        "categories": categories
+    })
 
 def login_view(request):
     if request.method == "POST":
