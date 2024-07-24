@@ -3,12 +3,14 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from .forms import AuctionListingForm
+from django.contrib import messages
+from .forms import AuctionListingForm, BidForm, CommentForm
 
 
-from .models import User, AuctionListing, Category
+from .models import User, AuctionListing, Category, Bid, Comment
 
 
+# auctions/views.py
 def index(request):
     listings = AuctionListing.objects.all()
     return render(request, "auctions/index.html", {
@@ -17,9 +19,63 @@ def index(request):
 
 def listing_detail(request, listing_id):
     listing = get_object_or_404(AuctionListing, pk=listing_id)
+    user = request.user
+    is_watching = user.is_authenticated and listing.watchlist.filter(id=user.id).exists()
+    is_owner = user == listing.created_by
+    is_winner = user == listing.winner
+
+    if listing.bids.exists():
+        current_price = listing.bids.order_by('-amount').first().amount
+    else:
+        current_price = listing.starting_bid
+
+    if request.method == "POST":
+        if 'bid' in request.POST:
+            bid_form = BidForm(request.POST)
+            if bid_form.is_valid():
+                new_bid = bid_form.save(commit=False)
+                new_bid.bid_by = user
+                new_bid.listing = listing
+                if new_bid.amount > listing.starting_bid and (not listing.bids.exists() or new_bid.amount > listing.bids.order_by('-amount').first().amount):
+                    new_bid.save()
+                    messages.success(request, 'Your bid was successfully placed!')
+                else:
+                    messages.error(request, 'Your bid must be higher than the current highest bid.')
+        elif 'comment' in request.POST:
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                new_comment = comment_form.save(commit=False)
+                new_comment.commented_by = user
+                new_comment.listing = listing
+                new_comment.save()
+                messages.success(request, 'Your comment was successfully added!')
+        elif 'close' in request.POST and is_owner:
+            listing.is_active = False
+            highest_bid = listing.bids.order_by('-amount').first()
+            if highest_bid:
+                listing.winner = highest_bid.bid_by
+            listing.save()
+            messages.success(request, 'The auction was successfully closed!')
+        elif 'watch' in request.POST:
+            if is_watching:
+                listing.watchlist.remove(user)
+                messages.success(request, 'Removed from your watchlist.')
+            else:
+                listing.watchlist.add(user)
+                messages.success(request, 'Added to your watchlist.')
+
+    bid_form = BidForm()
+    comment_form = CommentForm()
     return render(request, "auctions/listing_detail.html", {
-        "listing": listing
+        "listing": listing,
+        "bid_form": bid_form,
+        "comment_form": comment_form,
+        "is_watching": is_watching,
+        "is_owner": is_owner,
+        "is_winner": is_winner,
+        "current_price": current_price,
     })
+
 
 def categories(request):
     categories = Category.objects.all()
