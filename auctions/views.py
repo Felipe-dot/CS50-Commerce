@@ -9,8 +9,6 @@ from .forms import AuctionListingForm, BidForm, CommentForm
 
 from .models import User, AuctionListing, Category, Bid, Comment
 
-
-# auctions/views.py
 def index(request):
     listings = AuctionListing.objects.all()
     return render(request, "auctions/index.html", {
@@ -146,4 +144,12 @@ def create_listing(request):
         form = AuctionListingForm()
     return render(request, "auctions/create_listing.html", {
         "form": form
+    })
+
+def category_listings_view(request, category_name):
+    category = get_object_or_404(Category, name=category_name)
+    listings = AuctionListing.objects.filter(category=category, is_active=True)
+    return render(request, "auctions/category_listings.html", {
+        "category": category,
+        "listings": listings
     })
