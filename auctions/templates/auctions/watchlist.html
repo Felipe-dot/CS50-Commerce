@@ -1,0 +1,37 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="container">
+                <h2 class="text-center mb-4">Your Watchlist</h2>
+                {% if user.is_authenticated %}
+                    <div class="row">
+                        {% if watchlist_items %}
+                            {% for listing in watchlist_items %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="{{ listing.image_url }}" class="card-img-top" alt="{{ listing.title }}">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title text-center">{{ listing.title }}</h5>
+                                            <p class="card-text">{{ listing.description|truncatewords:20 }}</p>
+                                            <a href="{% url 'listing_detail' listing.id %}" class="btn btn-primary mt-auto">View Listing</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12 text-center">
+                                <p class="text-muted">You have no items in your watchlist.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="text-center">
+                        <a href="{% url 'login' %}">Log in</a> to view and manage your watchlist.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

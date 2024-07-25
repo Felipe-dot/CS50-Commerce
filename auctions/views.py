@@ -10,6 +10,7 @@ from .forms import AuctionListingForm, BidForm, CommentForm
 from .models import User, AuctionListing, Category, Bid, Comment
 
 def index(request):
+    user = request.user
     listings = AuctionListing.objects.all()
     return render(request, "auctions/index.html", {
         "listings": listings
@@ -152,4 +153,15 @@ def category_listings_view(request, category_name):
     return render(request, "auctions/category_listings.html", {
         "category": category,
         "listings": listings
+    })
+
+def watchlist_view(request):
+    user = request.user
+    if(user.is_authenticated):
+        watchlist_items = user.watchlist.all()
+    else:
+        watchlist_items = []
+    
+    return render(request, "auctions/watchlist.html", {
+        "watchlist_items": watchlist_items
     })
