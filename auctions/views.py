@@ -7,7 +7,7 @@ from django.contrib import messages
 from .forms import AuctionListingForm, BidForm, CommentForm
 
 
-from .models import User, AuctionListing, Category, Bid, Comment
+from .models import User, AuctionListing, Category
 
 def index(request):
     user = request.user
@@ -41,7 +41,8 @@ def listing_detail(request, listing_id):
                 else:
                     messages.error(request, 'Your bid must be higher than the current highest bid.')
         elif 'comment' in request.POST:
-            comment_form = CommentForm(request.POST)
+            comment_data = request.POST.getlist('comment')
+            comment_form = CommentForm({'comment': comment_data[0]})
             if comment_form.is_valid():
                 new_comment = comment_form.save(commit=False)
                 new_comment.commented_by = user
@@ -58,9 +59,11 @@ def listing_detail(request, listing_id):
         elif 'watch' in request.POST:
             if is_watching:
                 listing.watchlist.remove(user)
+                is_watching = False
                 messages.success(request, 'Removed from your watchlist.')
             else:
                 listing.watchlist.add(user)
+                is_watching = True
                 messages.success(request, 'Added to your watchlist.')
 
     bid_form = BidForm()

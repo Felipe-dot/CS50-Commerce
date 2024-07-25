@@ -25,16 +25,18 @@
                         <button type="submit" name="close" class="btn btn-danger">Close Auction</button>
                     </form>
                 {% endif %}
-                <form method="post" class="py-2 text-right">
-                    {% csrf_token %}
-                    <button type="submit" name="watch" class="btn {% if is_watching %}btn-warning{% else %}btn-success{% endif %}">
-                        {% if is_watching %}
-                            Remove from Watchlist
-                        {% else %}
-                            Add to Watchlist
-                        {% endif %}
-                    </button>
-                </form>
+                {% if not is_owner %}
+                    <form method="post" class="py-2 text-right">
+                        {% csrf_token %}
+                        <button type="submit" name="watch" class="btn {% if is_watching %}btn-warning{% else %}btn-success{% endif %}">
+                            {% if is_watching %}
+                                Remove from Watchlist
+                            {% else %}
+                                Add to Watchlist
+                            {% endif %}
+                        </button>
+                    </form>
+                {%endif %}
                 {% if listing.is_active %}
                     <form method="post" >
                         {% csrf_token %}
@@ -42,6 +44,15 @@
                         <button type="submit" name="bid" class="btn btn-primary w-100">Place Bid</button>
                     </form>
                 {% endif %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="mt-3">
+                            <div class="alert alert-danger" role="alert">
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endif %}
+                 {% endfor %}
                 <h3 class="py-2">Comments</h3>
                 <ul>
                     {% for comment in listing.comments.all %}
