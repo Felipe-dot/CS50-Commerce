@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -65,6 +65,7 @@ def listing_detail(request, listing_id):
                 listing.watchlist.add(user)
                 is_watching = True
                 messages.success(request, 'Added to your watchlist.')
+        return redirect('listing_detail', listing_id=listing.id)
 
     bid_form = BidForm()
     comment_form = CommentForm()
