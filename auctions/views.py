@@ -11,9 +11,24 @@ from .models import User, AuctionListing, Category
 
 def index(request):
     user = request.user
-    listings = AuctionListing.objects.all()
+    listings = AuctionListing.objects.filter(is_active=True)
+
+    listings_with_prices = []
+
+    for listing in listings:
+        if listing.bids.exists():
+            highest_bid = listing.bids.order_by('-amount').first()
+            highest_bid_amount = highest_bid.amount
+        else:
+            highest_bid_amount = listing.starting_bid
+
+        listings_with_prices.append({
+            "listing": listing,
+            "current_price": highest_bid_amount,
+        })
+
     return render(request, "auctions/index.html", {
-        "listings": listings
+        "listings_with_prices": listings_with_prices
     })
 
 def listing_detail(request, listing_id):
