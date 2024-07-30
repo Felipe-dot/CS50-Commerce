@@ -17,6 +17,7 @@
             <p>Category: {{ listing.category }}</p>
             <p>Starting Bid: ${{ listing.starting_bid }}</p>
             <p>Current Price: ${{ current_price }}</p>
+            <p>Total Bids: {{ listing.bids.count }}</p>
             <p>Seller: {{ listing.created_by.username }}</p>
             {% if not listing.is_active %}
                 <p>This auction is closed.</p>
