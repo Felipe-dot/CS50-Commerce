@@ -186,5 +186,4 @@ def watchlist_view(request):
 
 def user_bids(request):
     listings = AuctionListing.objects.filter(bids__bid_by=request.user).distinct()
-    print(listings)
     return render(request, 'auctions/user_bids.html', {'listings': listings})
