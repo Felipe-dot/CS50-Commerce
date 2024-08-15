@@ -1,0 +1,42 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="container">
+                <h2 class="text-center mb-4">Your Bids</h2>
+                {% if user.is_authenticated %}
+                    <div class="row">
+                        {% if listings %}
+                            {% for listing in listings %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        {% if  listing.image_url %}
+                                            <img src="{{ listing.image_url }}" class="img-fluid d-block mx-auto p-4" alt="{{ listing.title }}">
+                                        {% else %}
+                                            <img src="/static/images/image_placeholder.png" class="card-img-top"  alt="Image Placeholder">
+                                        {% endif %}
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title text-center">{{ listing.title }}</h5>
+                                            <hr class="my-4 border border-dark w-100"  />
+                                            <p class="card-text">{{ listing.description|truncatewords:20 }}</p>
+                                            <a href="{% url 'listing_detail' listing.id %}" class="btn btn-primary mt-auto">View Listing</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12 text-center">
+                                <p class="text-muted">You have no bids.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="text-center">
+                        <a href="{% url 'login' %}">Log in</a> to bid on the website.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

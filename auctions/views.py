@@ -6,8 +6,7 @@ from django.urls import reverse
 from django.contrib import messages
 from .forms import AuctionListingForm, BidForm, CommentForm
 
-
-from .models import User, AuctionListing, Category
+from .models import User, AuctionListing, Category, Bid
 
 def index(request):
     user = request.user
@@ -184,3 +183,8 @@ def watchlist_view(request):
     return render(request, "auctions/watchlist.html", {
         "watchlist_items": watchlist_items
     })
+
+def user_bids(request):
+    listings = AuctionListing.objects.filter(bids__bid_by=request.user).distinct()
+    print(listings)
+    return render(request, 'auctions/user_bids.html', {'listings': listings})
